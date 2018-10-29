@@ -7,9 +7,11 @@ import {
 
 class IndexController {
   constructor({
-    indexModel
+    indexModel,
+    wxModel
   }) {
     this.indexModel = indexModel;
+    this.wxModel = wxModel;
   }
   @route('/test')
   @GET()
@@ -19,10 +21,12 @@ class IndexController {
   @route('/index')
   @GET()
   async homepageAction(ctx) {
-    const data = await this.indexModel.getData();
-    ctx.body = await ctx.render('home/home', {
-      data
-    });
+    this.wxModel.getToken()
+      .then((res) => {
+        console.log(res);
+        ctx.body = 'ok';
+      });
+
   }
 }
 export default IndexController;

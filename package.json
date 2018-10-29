@@ -73,6 +73,7 @@
   "dependencies": {
     "awilix": "^3.0.9",
     "awilix-koa": "^2.1.1",
+    "axios": "^0.18.0",
     "co": "^4.6.0",
     "koa": "^2.5.3",
     "koa-router": "^7.4.0",
