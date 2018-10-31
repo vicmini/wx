@@ -16,8 +16,8 @@ export default class WxModel {
       'template_id': 'sAmBvsvjTtAT8tZddz6UxmuWveIeTdA1uG5lhfJOCmg',
       'data': {
         'name':{
-          'value':"victor",
-          'color':"#00ffff"
+          'value':'victor',
+          'color':'#00ffff'
         }
       }
     });
