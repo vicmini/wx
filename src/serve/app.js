@@ -5,6 +5,7 @@ import serve from 'koa-static';
 import log4js from 'log4js';
 import co from 'co';
 import path from 'path';
+import './utils/excelUtils';
 import {
   createContainer,
   Lifetime
@@ -13,7 +14,8 @@ import {
   scopePerRequest,
   loadControllers
 } from 'awilix-koa';
-
+import Sequelize from 'sequelize';
+import SendBirthday from './tasks/SendBirthday';
 import {
   ErrorHandle
 } from './middlewares/ErrorHandle';
@@ -28,17 +30,84 @@ log4js.configure({
     'serve': {
       'type': 'file',
       'filename': path.join(__dirname, 'logs/node-app.log')
+    },
+    'birth': {
+      'type': 'file',
+      'filename': path.join(__dirname, 'logs/birthday.log')
     }
   },
   'categories': {
     'default': {
       'appenders': ['serve'],
       'level': 'error'
+    },
+    'birth': {
+      'appenders': ['birth'],
+      'level': 'info'
     }
   }
 });
-ErrorHandle.error(app, log4js.getLogger('serve'));
 
+ErrorHandle.error(app, log4js.getLogger('serve'));
+// 数据库连接
+const sequelize = new Sequelize('bling', 'root', 'MyNewPass4!', {
+  'host': '47.107.129.12',
+  'port': 3306,
+  'dialect': 'mysql',
+  'pool': {
+    'max': 5,
+    'min': 0,
+    'acquire': 30000,
+    'idle': 10000
+  }
+});
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+const Staff = sequelize.define('bl_staff', {
+  'staff_name': {
+    'type': Sequelize.STRING(20)
+  },
+  'department_name': {
+    'type': Sequelize.STRING(50)
+  },
+  'position_name':{
+    'type':Sequelize.STRING(50)
+  },
+  'birthday':{
+    'type':Sequelize.STRING(10)
+  },
+  'birthday_type':{
+    'type':Sequelize.INTEGER
+  },
+  'is_leave':{
+    'type':Sequelize.INTEGER,
+    'defaultValue':0
+  },
+  'is_del':{
+    'type':Sequelize.INTEGER,
+    'defaultValue':0
+  }
+});
+Staff.sync();
+// User.create({
+//   'firstName': 'John',
+//   'lastName': 'Hancock'
+// });
+// var users = yield User.bulkCreate(
+//   [
+//       {'emp_id': 'a', 'nick': 'a'},
+//       {'emp_id': 'b', 'nick': 'b'},
+//       {'emp_id': 'c', 'nick': 'c'}
+//   ]
+// );
+/* eslint-disable no-new */
+new SendBirthday(log4js.getLogger('birth'));
 // 静态资源
 app.use(serve(
   config.assetsDir, {
@@ -66,7 +135,7 @@ app.context.render = co.wrap(render({
 // 初始化路由
 const container = createContainer();
 app.use(scopePerRequest(container));
-container.loadModules([__dirname+'/models/*.js'], {
+container.loadModules([__dirname + '/models/*.js'], {
   'formatName': 'camelCase',
   'resolverOptions': {
     'lifetime': Lifetime.SCOPED
