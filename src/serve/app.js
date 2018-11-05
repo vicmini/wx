@@ -14,7 +14,7 @@ import {
   scopePerRequest,
   loadControllers
 } from 'awilix-koa';
-import Sequelize from 'sequelize';
+import * as DB from './db';
 import SendBirthday from './tasks/SendBirthday';
 import {
   ErrorHandle
@@ -47,54 +47,12 @@ log4js.configure({
     }
   }
 });
-
 ErrorHandle.error(app, log4js.getLogger('serve'));
-// 数据库连接
-const sequelize = new Sequelize('bling', 'root', 'MyNewPass4!', {
-  'host': '47.107.129.12',
-  'port': 3306,
-  'dialect': 'mysql',
-  'pool': {
-    'max': 5,
-    'min': 0,
-    'acquire': 30000,
-    'idle': 10000
-  }
+const sequelize = DB.init();
+app.use(async (ctx,next)=>{
+  ctx.dbModels = sequelize.models;
+  await next();
 });
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Connection has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
-const Staff = sequelize.define('bl_staff', {
-  'staff_name': {
-    'type': Sequelize.STRING(20)
-  },
-  'department_name': {
-    'type': Sequelize.STRING(50)
-  },
-  'position_name':{
-    'type':Sequelize.STRING(50)
-  },
-  'birthday':{
-    'type':Sequelize.STRING(10)
-  },
-  'birthday_type':{
-    'type':Sequelize.INTEGER
-  },
-  'is_leave':{
-    'type':Sequelize.INTEGER,
-    'defaultValue':0
-  },
-  'is_del':{
-    'type':Sequelize.INTEGER,
-    'defaultValue':0
-  }
-});
-Staff.sync();
 // User.create({
 //   'firstName': 'John',
 //   'lastName': 'Hancock'
@@ -106,8 +64,9 @@ Staff.sync();
 //       {'emp_id': 'c', 'nick': 'c'}
 //   ]
 // );
-/* eslint-disable no-new */
-new SendBirthday(log4js.getLogger('birth'));
+
+const birthTast = new SendBirthday(sequelize,log4js.getLogger('birth'));
+birthTast.start();
 // 静态资源
 app.use(serve(
   config.assetsDir, {

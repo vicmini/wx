@@ -10,15 +10,15 @@ export default class WxModel {
       }
     });
   }
-  async sendMsg() {
+  async sendMsg(staff) {
     const tokenData = await this.getToken();
     const accessKoken = tokenData.data.access_token;
     return axios.post(`${config.wxApi}/cgi-bin/message/template/send?access_token=${accessKoken}`, {
-      'touser': 'oLCm50X-YibLS0AoPaFdqXwQSTok',
-      'template_id': 'sAmBvsvjTtAT8tZddz6UxmuWveIeTdA1uG5lhfJOCmg',
+      'touser': 'oLCm50U0A4PMJLp4ewekKPKJuRa8',
+      'template_id': 'KvcRPIT8TJbPzYi9I3WUtLxmhmbFc2bG01--GpiToiE',
       'data': {
         'name': {
-          'value': 'victor',
+          'value': staff,
           'color': '#00ffff'
         }
       }
