@@ -5,7 +5,6 @@ import serve from 'koa-static';
 import log4js from 'log4js';
 import co from 'co';
 import path from 'path';
-import './utils/excelUtils';
 import {
   createContainer,
   Lifetime

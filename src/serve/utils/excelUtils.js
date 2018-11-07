@@ -1,5 +1,4 @@
 import * as XLSX from 'xlsx';
-
 export function importExcel(filePath) {
   const data = [];
   try {
@@ -21,11 +20,11 @@ export function importExcel(filePath) {
     const endRow = range.e.r; // 结束的行
     const endCol = range.e.c; // 结束的列
     //循环获取单元格值
-    for (let R = startRow+1; R <= endRow; ++R) {
-      const row = [];
-      let flag = false;
+    for (let R = startRow + 1; R <= endRow; ++R) {
+      const row = {};
+      // let flag = false;
       for (let C = startCol; C <= endCol; ++C) {
-        let rowValue = null;
+        // let rowValue = null;
         let cellAddress = {
           'c': C,
           'r': R
@@ -33,26 +32,39 @@ export function importExcel(filePath) {
         const cell = XLSX.utils.encode_cell(cellAddress); //根据单元格地址获取单元格
         if (sheet1[cell]) {
           //获取单元格值
-          rowValue = sheet1[cell].v;
-        } else {
-          rowValue = '';
+          if (C === startCol) {
+            row['staff_name'] =sheet1[cell].v;
+          } else if (C === startCol + 1) {
+            row['birthday'] = sheet1[cell].v;
+          } else if (C === startCol + 2) {
+            let type = 0;
+            if (sheet1[cell].v === '公历') {
+              type = 1;
+            } else if (sheet1[cell].v === '农历') {
+              type = 2;
+            }
+            row['birthday_type'] = type;
+          }
         }
-        row.push(rowValue);
+        // row.push(rowValue);
       }
       //判断整行是否都为空，是则去掉
-      for (let i = 0; i < row.length; i++) {
+      /* for (let i = 0; i < row.length; i++) {
         if (row[i] !== '') {
           flag = true;
           break;
         }
-      }
-      if (flag) {
-        data.push(row);
-      }
+      } */
+      // console.log(row);
+      data.push(row);
+      /* if (flag) {
+
+      } */
     }
   } catch (e) {
+    throw e;
     //err = '解析出错' + e.toString();
   }
 
-  return {data};
+  return data;
 }

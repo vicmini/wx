@@ -35,7 +35,7 @@ export default class SendBirthday {
   async task() {
     let sendStr = ''; // 需要推送的消息
     // 得到今天公历日期
-    const todayG = moment().format('YYYY-MM-DD');
+    const todayG = moment().format('MM-DD');
     const year = moment().year();
     const month = moment().month() + 1;
     const date = moment().date();
@@ -43,7 +43,7 @@ export default class SendBirthday {
     // 得到今天的农历日期
     const solar2lunarData = solarLunar.solar2lunar(year, month, date); // 输入的日子为公历
     let todayL = `${solar2lunarData.lYear}-${solar2lunarData.lMonth}-${solar2lunarData.lDay}`;
-    todayL = moment(todayL, 'YYYY-M-D').format('YYYY-MM-DD');
+    todayL = moment(todayL, 'YYYY-M-D').format('MM-DD');
     const data = await this.dbModels['staff'].findAll({
       'where': {
         [Op.or]: [{
